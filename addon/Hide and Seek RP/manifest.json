@@ -1,0 +1,39 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Hide and Seek Resources",
+    "description": "Textures for the Hide and Seek add-on.",
+    "uuid": "84bfd208-4d7c-495e-b977-752838aaa458",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      90
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "ac29ee67-d518-4b9c-b7d5-498cb43538c6",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "ee457995-e505-45ae-bc8c-559fc77b370e",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

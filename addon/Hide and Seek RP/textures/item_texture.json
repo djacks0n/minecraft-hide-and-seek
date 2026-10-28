@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "hide_and_seek",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "hs_game_book": {
+      "textures": "textures/items/hs_game_book"
+    }
+  }
+}

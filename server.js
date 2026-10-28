@@ -46,6 +46,19 @@ const server = http.createServer((req, res) => {
 
   if (url.pathname === "/healthz") return send(res, 200, "ok", "text/plain");
 
+  if (req.method === "GET" && url.pathname === "/HideAndSeek.mcaddon") {
+    fs.readFile(path.join(__dirname, "addon", "HideAndSeek.mcaddon"), (err, buf) => {
+      if (err) return send(res, 404, { error: "Add-on not found" });
+      res.writeHead(200, {
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": 'attachment; filename="HideAndSeek.mcaddon"',
+        "Cache-Control": "no-cache",
+      });
+      res.end(buf);
+    });
+    return;
+  }
+
   if (url.pathname.startsWith("/api/") && !validRoom(code)) {
     return send(res, 400, { error: "Room code must be 4 to 8 letters or numbers." });
   }

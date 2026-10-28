@@ -1,0 +1,58 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Hide and Seek",
+    "description": "Jet Lag style hide and seek: challenge and curse wheels, 161 questions, powerups, and timers.",
+    "uuid": "ee457995-e505-45ae-bc8c-559fc77b370e",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      90
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "5f78a415-78c2-4447-9497-e71498e87f07",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "6d461081-40dd-40c4-8dcb-47f53df68fae",
+      "entry": "scripts/main.js",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.0.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
+    },
+    {
+      "uuid": "84bfd208-4d7c-495e-b977-752838aaa458",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
