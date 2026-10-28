@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Minecraft Hide and Seek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a field kit at night. Status strip on top, seeker and hider panels side by side, log underneath. Single dark look by choice. */
+:root {
+  --bg: #12161b;
+  --panel: #1a2027;
+  --panel-2: #222a33;
+  --line: #2f3a46;
+  --fg: #e8ece6;
+  --muted: #9aa6ae;
+  --grass: #6fbf4a;
+  --grass-ink: #10200a;
+  --redstone: #e0503c;
+  --gold: #f2c43d;
+  --gold-ink: #2a2000;
+  --enchant: #a77df0;
+  --diamond: #4fd1d9;
+  --diamond-ink: #062a2c;
+  --display: "Pixelify Sans", "Courier New", monospace;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.45;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+
+/* Status strip */
+.strip { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 2px solid var(--line); }
+.strip-in { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
+.brand i { width: 14px; height: 14px; background: var(--grass); box-shadow: inset 0 -5px 0 #7a5a33; display: inline-block; }
+.roles { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.roles b { color: var(--fg); }
+.phase { font-family: var(--display); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; padding: 3px 8px; border: 2px solid currentColor; }
+.ph-setup { color: var(--muted); } .ph-hiding { color: var(--gold); } .ph-seeking { color: var(--grass); } .ph-found { color: var(--diamond); }
+.clock { margin-left: auto; display: flex; align-items: baseline; gap: 10px; }
+.clock .big { font-family: var(--display); font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.clock .sub { font-size: 12px; color: var(--muted); text-align: right; }
+.sync { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.sync::before { content: ""; width: 8px; height: 8px; background: var(--muted); }
+.sync.live::before { background: var(--grass); }
+.sync.off::before { background: var(--redstone); }
+.room { display: flex; align-items: center; gap: 8px; }
+.room-code { font-family: var(--display); font-size: 16px; letter-spacing: .12em; padding: 2px 8px; border: 2px dashed var(--line); }
+.linkbox { width: 100%; margin-top: 8px; background: var(--bg); border: 2px solid var(--line); padding: 6px 8px; }
+
+/* Panels */
+.banner { margin-top: 16px; padding: 10px 14px; border: 2px solid var(--gold); color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, transparent); font-size: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .clock { margin-left: 0; width: 100%; justify-content: space-between; } }
+.panel { background: var(--panel); border: 2px solid var(--line); padding: 16px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.panel h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-wrap: balance; }
+.panel h2 small { font-family: var(--body); font-size: 13px; color: var(--muted); font-weight: 400; }
+.panel h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+.seeker h2 .who { color: var(--grass); } .hider h2 .who { color: var(--enchant); }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+
+.btn { border: 2px solid var(--line); background: var(--panel-2); padding: 9px 14px; font-weight: 700; box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn:active:not(:disabled) { box-shadow: inset 0 3px 0 rgba(0,0,0,.35); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.go { background: var(--grass); color: var(--grass-ink); border-color: var(--grass); }
+.btn.gold { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); }
+.btn.dia { background: var(--diamond); color: var(--diamond-ink); border-color: var(--diamond); }
+.btn.red { background: transparent; color: var(--redstone); border-color: var(--redstone); }
+.btn.sm { padding: 4px 9px; font-size: 13px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Setup */
+.setup { margin-top: 16px; background: var(--panel); border: 2px solid var(--line); padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 860px) { .setup { grid-template-columns: 1fr; } }
+.step { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.step .num { font-family: var(--display); color: var(--gold); font-size: 14px; }
+.step h3 { margin: 0; font-family: var(--display); font-size: 20px; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.field input { background: var(--bg); border: 2px solid var(--line); padding: 8px 10px; color: var(--fg); width: 100%; }
+.die { font-family: var(--display); font-size: 44px; line-height: 1; width: 76px; height: 76px; display: grid; place-items: center; background: var(--panel-2); border: 2px solid var(--line); }
+.result-line { font-size: 15px; }
+.result-line b { color: var(--gold); }
+
+/* Wheels */
+.wheel-box { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+@media (max-width: 480px) { .wheel-box { grid-template-columns: 1fr; justify-items: center; } }
+.wheel { position: relative; width: 210px; height: 210px; max-width: 100%; }
+.wheel canvas { width: 100%; height: 100%; display: block; transition: transform 3.2s cubic-bezier(.12,.75,.18,1); }
+.wheel::after { content: ""; position: absolute; left: 50%; top: -6px; transform: translateX(-50%); border: 11px solid transparent; border-top: 18px solid var(--fg); border-bottom: 0; filter: drop-shadow(0 2px 0 rgba(0,0,0,.6)); }
+.wheel-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; width: 100%; }
+.legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend span::before { content: ""; width: 10px; height: 10px; background: var(--c); }
+
+.card { border: 2px solid var(--line); background: var(--panel-2); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.card .kind { font-family: var(--display); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+.card .text { font-size: 17px; font-weight: 700; }
+.card .desc { font-size: 14px; color: var(--muted); }
+.k-normal { color: var(--grass); } .k-hard { color: var(--redstone); } .k-time { color: var(--gold); } .k-curse { color: var(--enchant); } .k-power { color: var(--diamond); }
+.card.c-normal { border-color: var(--grass); } .card.c-hard { border-color: var(--redstone); } .card.c-time { border-color: var(--gold); } .card.c-curse { border-color: var(--enchant); } .card.c-power { border-color: var(--diamond); }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 6px; background: var(--line); color: var(--fg); letter-spacing: .03em; vertical-align: 2px; margin-right: 4px; }
+
+.credits { display: flex; gap: 10px; flex-wrap: wrap; }
+.credit { display: flex; align-items: center; gap: 8px; border: 2px solid var(--line); padding: 6px 10px; }
+.credit .n { font-family: var(--display); font-size: 22px; font-variant-numeric: tabular-nums; min-width: 1.2ch; text-align: center; }
+.credit.normal .n { color: var(--grass); } .credit.hard .n { color: var(--redstone); }
+.credit .lbl { font-size: 13px; color: var(--muted); }
+
+/* Questions */
+.qtools { display: flex; flex-direction: column; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 2px solid var(--line); background: transparent; padding: 3px 9px; font-size: 13px; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.qsearch { background: var(--bg); border: 2px solid var(--line); padding: 7px 10px; width: 100%; }
+.qlist { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow-y: auto; border: 2px solid var(--line); }
+.qlist li + li { border-top: 1px solid var(--line); }
+.qbtn { width: 100%; text-align: left; background: transparent; border: 0; padding: 8px 10px; display: grid; grid-template-columns: 3.2ch 1fr auto; gap: 8px; align-items: baseline; }
+.qbtn:hover { background: var(--panel-2); }
+.qbtn[aria-pressed="true"] { background: color-mix(in srgb, var(--grass) 18%, transparent); }
+.qbtn .qn { font-family: var(--display); color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.qbtn .hard { color: var(--redstone); font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.qbtn .asked { color: var(--muted); font-size: 11px; }
+.qbtn.was-asked .qt { color: var(--muted); }
+.askbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.askbar .sel { flex: 1 1 200px; min-width: 0; font-size: 14px; }
+
+.pending { border: 2px solid var(--gold); padding: 12px; display: flex; flex-direction: column; gap: 6px; background: color-mix(in srgb, var(--gold) 7%, transparent); }
+.pending .lbl { font-family: var(--display); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); }
+.pending .q { font-size: 17px; font-weight: 700; }
+
+.items { display: flex; flex-direction: column; gap: 8px; }
+.item { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; border: 2px solid var(--line); padding: 8px 10px; }
+.item .nm { font-weight: 700; }
+.item .ds { grid-column: 1 / 2; color: var(--muted); font-size: 13px; }
+.item .tm { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.item.power { border-left: 6px solid var(--diamond); }
+.item.curse { border-left: 6px solid var(--enchant); }
+.item.done { opacity: .55; }
+.empty { color: var(--muted); font-size: 13px; font-style: italic; }
+
+/* Bottom */
+.bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 860px) { .bottom { grid-template-columns: 1fr; } }
+.log { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow-y: auto; font-size: 14px; }
+.log li { display: grid; grid-template-columns: 6ch 1fr; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.log time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 2px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+td.num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.foot { margin-top: 16px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 13px; }
+.fixes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+@media (prefers-reduced-motion: reduce) { .wheel canvas { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="strip"><div class="strip-in">
+  <div class="brand"><i></i>Hide and Seek</div>
+  <div class="roles" id="roles"></div>
+  <div class="phase ph-setup" id="phase">Setup</div>
+  <div class="room"><span class="room-code" id="roomCode">----</span><button class="btn sm" id="copyLink">Copy invite link</button></div>
+  <div class="sync" id="sync">Connecting…</div>
+  <div class="clock"><div><div class="big" id="clockBig">--:--</div></div><div class="sub" id="clockSub">Set up a round</div><button class="btn dia" id="foundBtn" hidden>Found!</button></div>
+</div></div>
+
+<div class="wrap">
+  <div class="banner" id="banner" hidden></div>
+
+  <section class="setup" id="setup" hidden>
+    <div class="step">
+      <div class="num">Step 1</div>
+      <h3>Players</h3>
+      <label class="field">Player 1<input id="name0" maxlength="24" autocomplete="off"></label>
+      <label class="field">Player 2<input id="name1" maxlength="24" autocomplete="off"></label>
+    </div>
+    <div class="step">
+      <div class="num">Step 2</div>
+      <h3>Flip for hider</h3>
+      <p class="note" id="coinNote">Heads: Player 1 hides. Tails: Player 2 hides.</p>
+      <div class="row"><button class="btn gold" id="flipBtn">Flip coin</button></div>
+      <div class="result-line" id="coinResult"></div>
+    </div>
+    <div class="step">
+      <div class="num">Step 3</div>
+      <h3>Roll hiding time</h3>
+      <p class="note">d10 + 5 minutes of head start.</p>
+      <div class="row"><div class="die" id="die">?</div><button class="btn gold" id="rollBtn">Roll d10</button></div>
+      <div class="result-line" id="rollResult"></div>
+      <button class="btn go" id="startBtn">Start hiding</button>
+    </div>
+  </section>
+
+  <section class="grid" id="play" hidden>
+    <div class="panel seeker">
+      <h2><span>Seeker</span><span class="who" id="seekerName"></span><small>spins challenges, asks questions</small></h2>
+      <div class="wheel-box">
+        <div class="wheel"><canvas id="chalWheel" width="420" height="420" aria-label="Challenge wheel"></canvas></div>
+        <div class="wheel-side">
+          <div class="legend"><span style="--c:var(--grass)">Normal 2-5 min</span><span style="--c:var(--redstone)">Hard 8-12 min</span></div>
+          <button class="btn go" id="spinChal">Spin challenge</button>
+          <p class="note" id="chalNote"></p>
+        </div>
+      </div>
+      <div id="chalCard"></div>
+      <div>
+        <h3>Question credits</h3>
+        <div class="credits" style="margin-top:8px">
+          <div class="credit normal"><span class="n" id="credN">0</span><span class="lbl">normal</span></div>
+          <div class="credit hard"><span class="n" id="credH">0</span><span class="lbl">hard (asks any)</span></div>
+        </div>
+      </div>
+      <div class="qtools">
+        <h3>Questions</h3>
+        <div class="chips" id="chips"></div>
+        <input class="qsearch" id="qsearch" type="search" placeholder="Search questions" aria-label="Search questions">
+        <ul class="qlist" id="qlist"></ul>
+        <div class="askbar"><div class="sel" id="qsel">Pick a question.</div><button class="btn go" id="askBtn" disabled>Ask it</button></div>
+      </div>
+    </div>
+
+    <div class="panel hider">
+      <h2><span>Hider</span><span class="who" id="hiderName"></span><small>answers, then spins the curse wheel</small></h2>
+      <div id="pendingBox"></div>
+      <div class="wheel-box">
+        <div class="wheel"><canvas id="curseWheel" width="420" height="420" aria-label="Curse wheel"></canvas></div>
+        <div class="wheel-side">
+          <div class="legend"><span style="--c:var(--gold)">Time 25</span><span style="--c:var(--diamond)">Powerup 25</span><span style="--c:var(--enchant)">Curse 50</span></div>
+          <button class="btn gold" id="spinCurse">Spin curse wheel</button>
+          <p class="note" id="curseNote"></p>
+        </div>
+      </div>
+      <div id="curseCard"></div>
+      <div>
+        <h3>Powerups in hand</h3>
+        <div class="items" id="hand" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <h3>Active on the seeker</h3>
+        <div class="items" id="active" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom">
+    <div class="panel">
+      <h2>Game log</h2>
+      <ul class="log" id="log"></ul>
+    </div>
+    <div class="panel">
+      <h2>Rounds</h2>
+      <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Hider</th><th>Bonus</th><th>Score</th></tr></thead><tbody id="hist"></tbody></table></div>
+      <p class="note" id="leader"></p>
+      <div class="row" id="nextRow" hidden><button class="btn go" id="nextBtn">Next round (swap roles)</button></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div class="fixes">House fixes:
+      <button class="btn sm" data-fix="n+">+1 normal</button><button class="btn sm" data-fix="n-">-1 normal</button>
+      <button class="btn sm" data-fix="h+">+1 hard</button><button class="btn sm" data-fix="h-">-1 hard</button>
+      <button class="btn sm" data-fix="b+">+0:30 bonus</button><button class="btn sm" data-fix="b-">-0:30 bonus</button>
+    </div>
+    <button class="btn red sm" id="resetBtn">Reset whole game</button>
+  </div>
+</div>
+
+<script>
+(() => {
+// ---------- Data ----------
+const CH_NORMAL = [
+"Cook 2 different foods","Catch any 2 fish","Selfie with 3 different animals","Grow 1 crop to full size (bone meal allowed)",
+"Tame any animal and kill it","Climb to Y=100 or higher and take a picture","Build a bridge over any water, 5+ blocks long",
+"Craft a full set of stone tools","Place 10 torches inside a cave","Craft a boat and sail 100 blocks","Picture of 3 different flowers",
+"Dig down to Y=20","Breed 2 animals","Craft a bed","Pillar up 10 blocks and jump into water","Shear a sheep and dye the wool",
+"Build a 3x3 dirt hut with a door","Tame and ride a horse","Fill a chest with 64 cobblestone",
+"Put a sign with your name on top of the tallest nearby tree","Kill any hostile mob","Make bread","Craft a shield",
+"Collect 4 different types of logs","Picture of an ore vein in a cave","Make a campfire and cook something on it",
+"Picture of a spider or a slime","Ride a minecart or boat through a cave or tunnel",
+"[C&F] Plant and grow any Crops and Farms crop","[C&F] Cook any Crops and Farms recipe","[C&F] Selfie with a Crops and Farms farm animal",
+"[Naturalist] Selfie with any Naturalist animal","[Naturalist] Picture of a butterfly or bird",
+"[BOP] Collect 5 logs from a Biomes O' Plenty tree","[BOP] Picture of 2 different Biomes O' Plenty flowers",
+"[Camping] Craft a backpack","[Camping] Fill a backpack with 10 different items","[Camping] Set up a tent and take a selfie in it",
+"[Civ] Selfie with a Civilizations villager","[Hiker] Craft any Hiker's Friend item",
+"[Hiker] Set up a camp: campfire, bed, and chest within 5 blocks of each other","[Structures] Picture of any Better Structures structure"
+];
+const CH_HARD = [
+"Craft an iron pickaxe","Bake a cake","Build a small house that fits your biome (door, bed, window)","Kill a zombie, skeleton, and creeper",
+"Find a village and trap a villager in a 1x1 hole","Reach deepslate (below Y=0) and take a picture","Craft an iron chestplate","Craft a map",
+"Build an arched bridge over natural water, at least 3 wide","Kill 3 different hostile mob types without armor on",
+"[Civ] Complete a trade with a Civilizations villager","[Naturalist] Selfie with a dangerous Naturalist animal (bear, alligator, lion, etc.)",
+"[Naturalist] Catch any animal in a pet cage","[C&F] Cook a Crops and Farms recipe with 3+ ingredients",
+"[BOP] Travel to a different Biomes O' Plenty biome than where you started and place a sign there",
+"[Structures] Loot a chest from a Better Structures structure","[Bosses] Find a Bosses Rise dungeon and take a picture at the entrance",
+"[Camping] Set up the portable backpack base and place 3 pieces of furniture in it"
+];
+
+const TIMES = [[30,5],[60,6],[120,5],[180,4],[240,2],[300,3]];
+// name, description, seconds the effect lasts (null = no timer)
+const POWERS = [
+["Veto","Refuse to answer one question. The seeker still uses it up.",null],
+["Camouflage","Refuse one photo question.",null],
+["Randomize","The seeker's next question gets swapped for a random one from the list.",null],
+["Bluff","Lie on one yes/no question. Reveal it when the round ends.",null],
+["Zoom","Crop your next photo answer down to a small section.",null],
+["Decoy","Your next photo can be taken anywhere within 100 blocks of your spot.",null],
+["Small Move","Move up to 50 blocks, now.",null],
+["Move","Move up to 150 blocks while the seeker freezes for 1 minute.",60],
+["Big Move","Move up to 300 blocks while the seeker freezes for 2 minutes.",120],
+["Freeze","Seeker stands still for 1 minute.",60],
+["Delay","Seeker can't ask a question for 3 minutes.",180],
+["Slow Clock","For the next 3 questions, the seeker waits 1 minute between each.",null],
+["Blind","Seeker sets render distance to minimum for 3 minutes.",180],
+["Blackout","Seeker sets brightness to 0 for 3 minutes.",180],
+["Silent","Seeker turns off game sound for 3 minutes.",180],
+["Spy","Seeker tells you their exact coordinates.",null],
+["Duplicate","Hit the seeker again with any curse already rolled this round.",null],
+["Double Down","The next curse lasts twice as long.",null],
+["Reroll","Spin the curse wheel twice and keep both.",null],
+["Challenge Pick","You choose the seeker's next challenge.",null],
+["Skip Tax","The seeker's next challenge skip gives you +10 minutes instead of +5.",null],
+["Rewind","The seeker's last completed challenge doesn't count (remove its credit).",null],
+["Hard Lock","The seeker's next hard question needs 2 hard challenges.",null],
+["Time Bank","Your next time bonus is doubled.",null],
+["Question Lock","Pick one question the seeker can't ask this round.",null]
+];
+// name, description, seconds (number) | "task" | "round"
+const CURSES = [
+["Curse of the Cave Dweller","Only travel underground.",180],
+["Curse of Skipping Leg Day","No jumping. Stairs are OK.",180],
+["Curse of Pacifist","Kill a mob without hitting it yourself.","task"],
+["Curse of Aquaphobia","Don't touch water.",180],
+["Curse of Starvation","Can't eat.",240],
+["Curse of the Gold Digger","Find 1 raw iron, raw gold, or diamond.","task"],
+["Curse of the Botanist","Pictures of 5 different plant species.","task"],
+["Curse of the Snail","No sprinting.",120],
+["Curse of the Lost Compass","Hider picks a direction. Walk 50 blocks that way.","task"],
+["Curse of the Tourist","Climb the nearest tree and take a selfie.","task"],
+["Curse of Butterfingers","Drop your held item and wait 20 seconds before picking it up.",20],
+["Curse of the Left Turn","You can only turn left.",120],
+["Curse of Silence","Can't break any blocks.",120],
+["Curse of the Mime","No talking.",180],
+["Curse of the Night Owl","Can't place torches.",300],
+["Curse of the Builder","Build a 5-block tower and stand on top for 30 seconds.","task"],
+["Curse of the Spectator","Hider gets a picture of your surroundings.","task"],
+["Curse of the Collector","Pick 3 different colored flowers.","task"],
+["Curse of the Vegetarian","Only plant foods for the rest of the round.","round"],
+["[C&F] Curse of the Farmer","Plant and harvest any crop.","task"],
+["[Naturalist] Curse of the Zookeeper","Selfie with a Naturalist animal.","task"],
+["[Camping] Curse of the Overpacker","Can't open your backpack.",240],
+["[Civ] Curse of the Diplomat","Next village you pass, take a selfie with a villager before leaving.","task"],
+["[BOP] Curse of the Wanderer","Step into a different biome.","task"],
+["[BOP] Curse of the Lumberjack","Collect 10 logs of a type you haven't collected this game.","task"],
+["[Hiker] Curse of the Hiker","On foot only. No boats or horses.",240],
+["Curse of the Hunted","Kill any hostile mob.","task"],
+["[Structures] Curse of the Trespasser","Take a picture inside any structure.","task"],
+["[Camping] Curse of the Homebody","Set up a tent and stay in it.",60],
+["Curse of the Bat","Can't place blocks.",180],
+["Curse of the Fragile","No armor.",240],
+["Curse of Bare Hands","Can't hold a tool or weapon.",120],
+["Curse of the Vampire","Stay out of direct sunlight: shade, caves, or under trees only.",120],
+["Curse of the Crab","Only walk sideways.",60],
+["Curse of Backwards Day","Only walk backwards.",60],
+["Curse of the Sloth","Crouch-walk only.",60],
+["Curse of the Selfie Cam","Play in front-facing third person.",120],
+["Curse of Tunnel Vision","Set FOV to minimum.",180],
+["Curse of Hopscotch","You can only move by jumping.",60],
+["Curse of the Map Maker","Craft a map.","task"],
+["Curse of the Fisherman","Catch a fish.","task"],
+["Curse of the Chef","Cook any food.","task"],
+["Curse of the Escort","Lead any animal 20 blocks.","task"],
+["Curse of the Insomniac","Can't sleep for the rest of the round.","round"],
+["Curse of Gravity","Jump off something 10+ blocks high into water.","task"],
+["Curse of the Architect","Build a 3x3 pyramid.","task"],
+["Curse of the Picky Eater","Only eat food you cooked yourself for the rest of the round.","round"],
+["[C&F] Curse of the Harvest","Eat any Crops and Farms food.","task"],
+["[Naturalist] Curse of the Wildlife Photographer","Pictures of 3 different Naturalist animals.","task"],
+["[BOP] Curse of the Florist","Pick 3 different Biomes O' Plenty flowers.","task"]
+];
+
+// Questions: [category, text]. Category "hard" marks hard questions.
+const Q = [
+["radar","Are you within 100 blocks of me?"],["radar","Are you within 200 blocks of me?"],["radar","Are you within 300 blocks of me?"],
+["radar","Are you within 500 blocks of me?"],["radar","Are you within 750 blocks of me?"],["radar","Are you within 1,000 blocks of me?"],
+["radar","Are you within 1,500 blocks of me?"],["radar","Are you within 2,000 blocks of me?"],
+["dir","Are you north or south of me?"],["dir","Are you east or west of me?"],["dir","Are you north or south of spawn?"],
+["dir","Are you east or west of spawn?"],["dir","I moved 50+ blocks. Am I closer or farther?"],["dir","I moved 100+ blocks. Am I closer or farther?"],
+["dir","I moved 300+ blocks. Am I closer or farther?"],["dir","Are you closer to spawn than I am?"],
+["terrain","Are you above or below Y=64?"],["terrain","Are you above or below Y=100?"],["terrain","Are you above or below Y=0?"],
+["terrain","Are you underground?"],["terrain","Are you standing on natural ground or something you placed?"],["terrain","Is the ground around you flat or hilly?"],
+["terrain","Can you see the sky from where you are?"],["terrain","Is there lava within 20 blocks of you?"],
+["biome","Is your biome the same as mine?"],["biome","Is your biome snowy, temperate, or hot?"],["biome","Is it raining, snowing, or dry where you are?"],
+["biome","What color is the grass where you are?"],["biome","What color are the leaves where you are?"],["biome","Are there trees within 10 blocks of you?"],
+["biome","Are you in a forest?"],["biome","Is there sand within 10 blocks of you?"],["biome","[BOP] Are you in a Biomes O' Plenty biome or a vanilla biome?"],
+["biome","Would your biome support pandas or camels? (say which)"],
+["water","Is there water within 20 blocks of you?"],["water","Can you see an ocean?"],["water","Can you see a river?"],["water","Are you on an island?"],
+["water","Are you closer to an ocean than I am?"],["water","Is there a lake or pond within 50 blocks of you?"],
+["struct","Can you see a village?"],["struct","[Civ] Is your nearest village a vanilla one or a Civilizations one?"],
+["struct","Can you see a structure? Is it vanilla or modded?"],["struct","Are you inside a structure or building?"],["struct","Are you closer to a village than I am?"],
+["struct","Is there something you built within 20 blocks of you?"],["struct","Is there a ruined portal within 100 blocks of you?"],
+["struct","Is there a shipwreck or ocean ruin within 100 blocks of you?"],["struct","Is there a chest within 10 blocks of you?"],
+["mobs","What's the nearest hostile mob to you?"],["mobs","[Naturalist] What's the closest Naturalist animal to you?"],
+["mobs","[C&F] What's the closest Crops and Farms farm animal to you?"],["mobs","Can you see any hostile mobs right now?"],
+["mobs","Can you see a villager?"],["mobs","Are there cows, pigs, or sheep within 30 blocks of you?"],["mobs","Are there bees or a beehive near you?"],
+["mobs","[Camping] Have you set up a tent or camp?"],["mobs","Can you see any fish in the water near you?"],["mobs","Are there flowers within 10 blocks of you?"],
+["photo","Picture of your surroundings"],["photo","Picture of the largest thing you can see"],["photo","Picture of the tallest thing you can see"],
+["photo","Picture of a log in your biome"],["photo","Picture straight up"],["photo","Picture straight down"],["photo","Picture of the nearest flower"],
+["photo","Picture of the nearest animal"],["photo","Picture of the nearest water"],["photo","Picture of the nearest leaves"],["photo","Picture of the horizon"],
+["photo","Picture facing north"],["photo","Picture facing south"],["photo","Picture facing east"],["photo","Picture facing west"],["photo","Picture of your hotbar"],
+["hard","Your x-coordinate rounded to the nearest 100"],["hard","Your z-coordinate rounded to the nearest 100"],["hard","Your exact Y-level"],
+["hard","How far from spawn are you, rounded to the nearest 250?"],["hard","Are you within 50 blocks of me?"],
+["hard","Get on top of a tree and take a picture of your biome"],["hard","Pillar up 20 blocks and take a picture"],["hard","Picture of the nearest structure"],
+["hard","Four pictures: one facing north, south, east, and west"],["hard","10-second video spinning 360 degrees"],
+["hard","Picture of your hiding spot from 10 blocks away"],["hard","Is your hiding spot natural or something you built?"],
+["hard","Name your exact biome (best guess)"],["hard","Name every biome you can see from where you are"],["hard","Name 3 biomes you passed through on the way to your spot"],
+["hard","What's the closest biome that's different from yours?"],["hard","Which direction is the nearest ocean?"],["hard","Which direction is the nearest village?"],
+["hard","Which direction is the nearest mountain?"],["hard","How far is the nearest village, rounded to the nearest 50?"],
+["hard","How far is the nearest water, rounded to the nearest 10?"],["hard","How far is the nearest modded structure, rounded to the nearest 50?"],
+["hard","What was the last structure you passed?"],["hard","[Civ] What's the nearest Civilizations civilization or village type?"],
+["hard","[Bosses] Are you within 200 blocks of a Bosses Rise dungeon?"],
+["radar","Are you within 250 blocks of spawn?"],["radar","Are you within 500 blocks of spawn?"],["radar","Are you within 1,000 blocks of spawn?"],
+["radar","Are you within 2,000 blocks of spawn?"],["radar","Are you within 100 blocks of a village?"],["radar","Are you within 100 blocks of an ocean?"],
+["radar","Are you within 50 blocks of a structure?"],
+["dir","Is the bigger gap between us north/south or east/west?"],["dir","I moved 500+ blocks. Am I closer or farther?"],
+["dir","I moved 20+ blocks. Am I closer or farther?"],["dir","Is the nearest ocean north or south of you?"],
+["dir","Have you moved more than 50 blocks since my last question?"],["dir","Have you moved at all since hiding time ended?"],
+["dir","Am I closer to you now than at my last question?"],
+["terrain","Are you above or below Y=32?"],["terrain","Are you above or below Y=150?"],["terrain","Are you higher or lower than me?"],
+["terrain","Is there bare stone on the surface near you?"],["terrain","Are you on a beach?"],["terrain","Is there a 5+ block drop within 20 blocks of you?"],
+["terrain","Is there gravel within 10 blocks of you?"],
+["biome","Can you see more than one biome?"],["biome","Are there cactus or dead bushes near you?"],["biome","Is there snow or ice on the ground?"],
+["biome","Are there mushrooms within 20 blocks of you?"],["biome","Are there vines or bamboo near you?"],
+["water","Are you standing in water?"],["water","Is there ice within 20 blocks of you?"],["water","Is the nearest water an ocean, or a river/lake?"],
+["water","Can you see a waterfall?"],["water","What color is the nearest water? (water color changes by biome)"],["water","Is there water above you?"],
+["water","Can you see seagrass or kelp?"],["water","Is there a boat within 50 blocks of you?"],["water","Are you closer to water than I am?"],
+["struct","Are you in a village right now?"],["struct","[Bosses] Can you see a Bosses Rise dungeon?"],["struct","Is there a dirt path near you?"],
+["struct","Can you see a bell or a well?"],["struct","Are there torches you didn't place near you?"],["struct","Are you closer to a modded structure than I am?"],
+["mobs","[Naturalist] Can you see a Naturalist predator (bear, lion, alligator, etc.)?"],["mobs","Is there a tamed animal near you?"],
+["mobs","Can you see a wandering trader?"],["mobs","Can you see squid or dolphins?"],["mobs","[Naturalist] Are there Naturalist insects like butterflies near you?"],
+["hard","Are you northeast, northwest, southeast, or southwest of me?"],["hard","Which quadrant are you in relative to spawn?"],
+["hard","How far are you from me, rounded to the nearest 100?"],["hard","Picture from your spot facing toward spawn"],
+["hard","Picture of the highest point you can see"],["hard","Your Y-level and the block you're standing on"],["hard","Name the biome to your north"],
+["hard","How many villages have you seen this round?"],["hard","What's the nearest structure type, and how far is it (nearest 50)?"],
+["hard","[Civ] Picture of the nearest Civilizations villager, or say none within 100 blocks"],["hard","Describe your hiding spot in 5 words"],
+["hard","Picture looking out of your hiding spot"],["hard","What are the last 3 things you crafted?"],["hard","What block is directly under you?"],
+["hard","Can you see any water? If yes, which direction?"]
+].map(([cat, t], i) => ({ id: "q" + (i + 1), n: i + 1, cat, t }));
+
+const CATS = [["all","All"],["radar","Radar"],["dir","Direction"],["terrain","Terrain"],["biome","Biome"],["water","Water"],["struct","Structures"],["mobs","Mobs"],["photo","Photos"],["hard","Hard"]];
+
+// Seeded shuffle so both players see identical wheels
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(a, seed){ const r = rng(seed); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+const CHAL = shuffle([...CH_NORMAL.map(t => ({ k: "normal", t })), ...CH_HARD.map(t => ({ k: "hard", t }))], 1145);
+const CURSE = shuffle([
+  ...TIMES.flatMap(([s, n]) => Array.from({ length: n }, () => ({ k: "time", s }))),
+  ...POWERS.map(([t, d, dur]) => ({ k: "power", t, d, dur })),
+  ...CURSES.map(([t, d, dur]) => ({ k: "curse", t, d, dur }))
+], 2026);
+
+// ---------- Helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+function tagged(t){ const m = /^\[(.+?)\]\s*/.exec(t); return m ? `<span class="tag">${esc(m[1])}</span>${esc(t.slice(m[0].length))}` : esc(t); }
+function plain(t){ return String(t).replace(/^\[(.+?)\]\s*/, ""); }
+function mmss(sec){ sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0"); }
+function hhmm(ms){ const d = new Date(ms); return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M/i, ""); }
+const rid = () => Math.random().toString(36).slice(2, 10);
+const clone = o => JSON.parse(JSON.stringify(o));
+
+function fresh(names){
+  return { v: 1, names: names || ["Player 1", "Player 2"], round: 1, phase: "setup", hider: null, coin: null, roll: null, hideMin: null,
+    startAt: null, foundAt: null, bonus: 0, credits: { n: 0, h: 0 }, chal: null, curse: null, pending: null, hand: [], active: [],
+    asked: {}, log: [], history: [] };
+}
+
+let state = fresh();
+let readOnly = false, firstSnap = true, lastV = 0, pending = 0, live = false;
+const ui = { cat: "all", q: "", sel: null };
+const ALPH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const ROOM = (() => {
+  let h = location.hash.replace("#", "").toUpperCase();
+  if (!/^[A-Z0-9]{4,8}$/.test(h)) {
+    h = Array.from({ length: 4 }, () => ALPH[Math.floor(Math.random() * ALPH.length)]).join("");
+    try { history.replaceState(null, "", "#" + h); } catch (e) { location.hash = h; }
+  }
+  return h;
+})();
+window.addEventListener("hashchange", () => location.reload());
+const LS = "mchs-room-" + ROOM;
+try { const saved = localStorage.getItem(LS); if (saved) state = JSON.parse(saved); } catch (e) {}
+
+const seekAt = s => s.startAt + (s.hideMin || 0) * 60000;
+function phaseNow(s){ return (s.phase === "hiding" && Date.now() >= seekAt(s)) ? "seeking" : s.phase; }
+const nm = i => esc(state.names[i] || ("Player " + (i + 1)));
+
+function addLog(s, m){ s.log.unshift({ t: Date.now(), m }); s.log = s.log.slice(0, 60); }
+
+// ---------- Commit ----------
+function commit(fn){
+  const next = clone(state);
+  fn(next);
+  state = next;
+  syncWheels();
+  render();
+  try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+  push();
+}
+let pushing = false, again = false;
+async function push(){
+  if (pushing) { again = true; return; }
+  pushing = true; pending++;
+  try {
+    const r = await fetch("/api/state?room=" + ROOM, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state }) });
+    if (r.ok) { const j = await r.json(); lastV = Math.max(lastV, j.v); setLive(true); } else setLive(false);
+  } catch (e) { setLive(false); }
+  pending--; pushing = false;
+  if (again) { again = false; push(); }
+}
+function setLive(on){
+  live = on;
+  const el = $("#sync");
+  el.textContent = on ? "Live" : "Offline: changes saved on this device";
+  el.classList.toggle("live", on); el.classList.toggle("off", !on);
+}
+function showBanner(t){ const b = $("#banner"); b.textContent = t; b.hidden = !t; }
+
+// ---------- Wheels ----------
+const COL = { normal: "--grass", hard: "--redstone", time: "--gold", power: "--diamond", curse: "--enchant" };
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function drawWheel(canvas, items){
+  const ctx = canvas.getContext("2d"), W = canvas.width, c = W / 2, r = c - 6, step = Math.PI * 2 / items.length;
+  ctx.clearRect(0, 0, W, W);
+  items.forEach((it, i) => {
+    ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, i * step, (i + 1) * step); ctx.closePath();
+    ctx.fillStyle = cssVar(COL[it.k]); ctx.fill();
+    ctx.lineWidth = items.length > 70 ? 1.5 : 2.5; ctx.strokeStyle = cssVar("--panel"); ctx.stroke();
+  });
+  ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.lineWidth = 6; ctx.strokeStyle = cssVar("--line"); ctx.stroke();
+  ctx.fillStyle = cssVar("--panel"); ctx.fillRect(c - 34, c - 34, 68, 68);
+  ctx.strokeStyle = cssVar("--line"); ctx.lineWidth = 4; ctx.strokeRect(c - 34, c - 34, 68, 68);
+  ctx.fillStyle = cssVar("--fg"); ctx.font = "700 22px 'Pixelify Sans', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(items.length, c, c);
+}
+const wheels = {
+  chal: { el: () => $("#chalWheel"), items: CHAL, deg: 0, seen: null, until: 0 },
+  curse: { el: () => $("#curseWheel"), items: CURSE, deg: 0, seen: null, until: 0 }
+};
+function targetDeg(w, i, from){
+  const step = 360 / w.items.length;
+  const base = -90 - (i + 0.5) * step + (Math.random() - 0.5) * step * 0.6;
+  let t = base; while (t < from + 360 * 5) t += 360;
+  return t;
+}
+function spinTo(key, i, animate){
+  const w = wheels[key], el = w.el();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!animate || reduce) {
+    el.style.transition = "none";
+    w.deg = targetDeg(w, i, 0) - 360 * 5;
+    el.style.transform = `rotate(${w.deg}deg)`;
+    void el.offsetWidth; el.style.transition = "";
+    w.until = 0;
+  } else {
+    w.deg = targetDeg(w, i, w.deg);
+    el.style.transform = `rotate(${w.deg}deg)`;
+    w.until = Date.now() + 3300;
+    setTimeout(render, 3350);
+  }
+}
+function syncWheels(){
+  for (const key of ["chal", "curse"]) {
+    const spin = state[key], w = wheels[key];
+    if (spin && spin.id !== w.seen) { spinTo(key, spin.i, !firstSnap); w.seen = spin.id; }
+    if (!spin) w.seen = null;
+  }
+}
+
+// ---------- Actions ----------
+const A = {
+  flip(){ commit(s => { const heads = Math.random() < 0.5; s.coin = heads ? "heads" : "tails"; s.hider = heads ? 0 : 1;
+    addLog(s, `Coin flip: ${s.coin}. ${s.names[s.hider]} hides.`); }); },
+  roll(){ commit(s => { const d = 1 + Math.floor(Math.random() * 10); s.roll = d; s.hideMin = d + 5;
+    addLog(s, `Rolled a ${d} on the d10. Hiding time is ${d + 5} minutes.`); }); },
+  start(){ commit(s => { s.phase = "hiding"; s.startAt = Date.now(); s.foundAt = null;
+    addLog(s, `Round ${s.round} started. ${s.names[s.hider]} is hiding for ${s.hideMin} minutes.`); }); },
+  spinChal(){ commit(s => { const i = Math.floor(Math.random() * CHAL.length); s.chal = { i, id: rid(), status: "pending" };
+    const it = CHAL[i]; addLog(s, `Challenge (${it.k}): ${plain(it.t)}`); }); },
+  chalDone(){ commit(s => { const it = CHAL[s.chal.i]; s.chal.status = "done"; if (it.k === "hard") s.credits.h++; else s.credits.n++;
+    addLog(s, `Challenge done. +1 ${it.k} question credit.`); }); },
+  chalSkip(){ commit(s => { s.chal.status = "skipped"; s.bonus += 300; addLog(s, `Challenge skipped. Hider gets +5:00.`); }); },
+  ask(){ const q = Q.find(x => x.id === ui.sel); if (!q) return;
+    commit(s => { if (q.cat === "hard") s.credits.h--; else if (s.credits.n > 0) s.credits.n--; else s.credits.h--;
+      s.asked[q.id] = (s.asked[q.id] || 0) + 1; s.pending = { qid: q.id, at: Date.now() };
+      addLog(s, `Asked #${q.n}: ${plain(q.t)}`); });
+    ui.sel = null; render(); },
+  spinCurse(){ commit(s => {
+    const i = Math.floor(Math.random() * CURSE.length), it = CURSE[i], now = Date.now();
+    s.curse = { i, id: rid() }; s.pending = null;
+    if (it.k === "time") { s.bonus += it.s; addLog(s, `Curse wheel: +${mmss(it.s)} for the hider.`); }
+    else if (it.k === "power") { s.hand.push({ id: rid(), t: it.t, d: it.d, dur: it.dur }); addLog(s, `Curse wheel: hider got the ${it.t} powerup.`); }
+    else { s.active.push({ id: rid(), kind: "curse", t: it.t, d: it.d, mode: typeof it.dur === "number" ? "timed" : it.dur,
+      endsAt: typeof it.dur === "number" ? now + it.dur * 1000 : null, done: false }); addLog(s, `Curse wheel: ${plain(it.t)}.`); }
+  }); },
+  usePower(id){ commit(s => { const p = s.hand.find(x => x.id === id); if (!p) return; s.hand = s.hand.filter(x => x.id !== id);
+    if (p.dur) s.active.push({ id: rid(), kind: "power", t: p.t, d: p.d, mode: "timed", endsAt: Date.now() + p.dur * 1000, done: false });
+    addLog(s, `Hider played ${p.t}: ${p.d}`); }); },
+  clearActive(id){ commit(s => { const a = s.active.find(x => x.id === id); s.active = s.active.filter(x => x.id !== id);
+    if (a) addLog(s, `${plain(a.t)} cleared.`); }); },
+  found(){ commit(s => { s.foundAt = Date.now(); s.phase = "found";
+    const seek = Math.max(0, (s.foundAt - seekAt(s)) / 1000), score = Math.round(seek + s.bonus);
+    s.history.push({ round: s.round, hider: s.hider, seek: Math.round(seek), bonus: s.bonus, score });
+    addLog(s, `${s.names[s.hider]} was found! Score ${mmss(score)} (${mmss(seek)} seeking + ${mmss(s.bonus)} bonus).`); }); },
+  next(){ commit(s => { const keep = { names: s.names, history: s.history, log: s.log, round: s.round + 1, hider: s.hider === 0 ? 1 : 0 };
+    Object.assign(s, fresh(keep.names), keep); s.coin = "swap"; addLog(s, `Round ${s.round}: roles swapped. ${s.names[s.hider]} hides.`); });
+    ui.sel = null; },
+  name(i, v){ v = v.trim().slice(0, 24) || ("Player " + (i + 1)); if (state.names[i] === v) return; commit(s => { s.names[i] = v; }); },
+  fix(k){ commit(s => {
+    if (k === "n+") s.credits.n++; if (k === "n-") s.credits.n = Math.max(0, s.credits.n - 1);
+    if (k === "h+") s.credits.h++; if (k === "h-") s.credits.h = Math.max(0, s.credits.h - 1);
+    if (k === "b+") s.bonus += 30; if (k === "b-") s.bonus = Math.max(0, s.bonus - 30);
+    addLog(s, `House fix: ${{ "n+":"+1 normal credit","n-":"-1 normal credit","h+":"+1 hard credit","h-":"-1 hard credit","b+":"+0:30 bonus","b-":"-0:30 bonus" }[k]}.`); }); },
+  reset(){ commit(s => { const names = s.names; Object.assign(s, fresh(names)); addLog(s, "Game reset."); }); ui.sel = null; }
+};
+
+// ---------- Render ----------
+function render(){
+  const s = state, ph = phaseNow(s), hasRoles = s.hider !== null;
+  const hider = hasRoles ? s.hider : null, seeker = hasRoles ? 1 - s.hider : null;
+
+  $("#roles").innerHTML = `<span>Round <b>${s.round}</b></span>` + (hasRoles ? `<span>Hider <b>${nm(hider)}</b></span><span>Seeker <b>${nm(seeker)}</b></span>` : "");
+  const pEl = $("#phase"); pEl.className = "phase ph-" + ph;
+  pEl.textContent = { setup: "Setup", hiding: "Hiding", seeking: "Seeking", found: "Found" }[ph];
+  $("#foundBtn").hidden = !(ph === "hiding" || ph === "seeking"); $("#foundBtn").disabled = readOnly;
+
+  // Setup
+  $("#setup").hidden = ph !== "setup";
+  for (const i of [0, 1]) { const inp = $("#name" + i); if (document.activeElement !== inp) inp.value = s.names[i]; inp.disabled = readOnly; }
+  const swapped = s.coin === "swap";
+  $("#flipBtn").disabled = readOnly || swapped;
+  $("#coinNote").textContent = swapped ? "Roles swap after each round, so no flip needed." : "Heads: Player 1 hides. Tails: Player 2 hides.";
+  $("#coinResult").innerHTML = s.coin && s.hider !== null ? (swapped ? `<b>${nm(s.hider)}</b> hides this round.` : `It's <b>${esc(s.coin)}</b>. <b>${nm(s.hider)}</b> hides.`) : "";
+  $("#die").textContent = s.roll ?? "?";
+  $("#rollResult").innerHTML = s.roll ? `${s.roll} + 5 = <b>${s.hideMin} minutes</b> to hide.` : "";
+  $("#rollBtn").disabled = readOnly;
+  $("#startBtn").disabled = readOnly || s.hider === null || !s.hideMin;
+
+  // Play
+  $("#play").hidden = ph === "setup";
+  if (ph !== "setup") {
+    $("#seekerName").textContent = s.names[seeker]; $("#hiderName").textContent = s.names[hider];
+    const live = ph === "seeking";
+    const chalPending = s.chal && s.chal.status === "pending";
+    const cw = wheels.chal, chalSpinning = Date.now() < cw.until;
+    $("#spinChal").disabled = readOnly || !live || chalPending || chalSpinning;
+    $("#chalNote").textContent = ph === "hiding" ? "Wait for hiding time to run out." : ph === "found" ? "Round over." : chalPending ? "Finish or skip the current challenge first." : "Done gives a question credit. Skipping gives the hider +5:00.";
+    if (s.chal && !chalSpinning) {
+      const it = CHAL[s.chal.i];
+      const status = s.chal.status === "done" ? "Completed" : s.chal.status === "skipped" ? "Skipped (+5:00 hider)" : "";
+      $("#chalCard").innerHTML = `<div class="card c-${it.k}"><div class="kind k-${it.k}">${it.k === "hard" ? "Hard challenge" : "Challenge"}${status ? " · " + status : ""}</div>
+        <div class="text">${tagged(it.t)}</div>
+        ${chalPending ? `<div class="row"><button class="btn go" data-act="chalDone" ${readOnly ? "disabled" : ""}>Done (+1 ${it.k} credit)</button><button class="btn red" data-act="chalSkip" ${readOnly ? "disabled" : ""}>Skip (+5:00 hider)</button></div>` : ""}</div>`;
+    } else $("#chalCard").innerHTML = chalSpinning ? `<div class="card"><div class="kind">Spinning…</div></div>` : "";
+    $("#credN").textContent = s.credits.n; $("#credH").textContent = s.credits.h;
+
+    // Questions
+    $("#chips").innerHTML = CATS.map(([k, l]) => `<button class="chip" data-cat="${k}" aria-pressed="${ui.cat === k}">${l}</button>`).join("");
+    const term = ui.q.toLowerCase();
+    const list = Q.filter(q => (ui.cat === "all" || q.cat === ui.cat) && (!term || q.t.toLowerCase().includes(term)));
+    $("#qlist").innerHTML = list.length ? list.map(q => { const a = s.asked[q.id] || 0;
+      return `<li><button class="qbtn ${a ? "was-asked" : ""}" data-q="${q.id}" aria-pressed="${ui.sel === q.id}"><span class="qn">${q.n}</span><span class="qt">${tagged(q.t)}</span><span>${q.cat === "hard" ? '<span class="hard">HARD</span> ' : ""}${a ? `<span class="asked">asked${a > 1 ? " ×" + a : ""}</span>` : ""}</span></button></li>`; }).join("")
+      : `<li style="padding:10px" class="empty">No questions match.</li>`;
+    const sel = Q.find(q => q.id === ui.sel);
+    let can = false, why = "Pick a question.";
+    if (sel) {
+      const hard = sel.cat === "hard";
+      can = live && !s.pending && (hard ? s.credits.h > 0 : (s.credits.n + s.credits.h) > 0);
+      why = `<b>#${sel.n}</b> ${tagged(sel.t)}` + (!live ? " <span class='note'>(seeking hasn't started)</span>" : s.pending ? " <span class='note'>(waiting on the hider's curse spin)</span>" : !can ? ` <span class='note'>(needs a ${hard ? "hard" : ""} credit)</span>` : "");
+    }
+    $("#qsel").innerHTML = why; $("#askBtn").disabled = readOnly || !can;
+
+    // Hider
+    const pq = s.pending && Q.find(q => q.id === s.pending.qid);
+    $("#pendingBox").innerHTML = pq ? `<div class="pending"><div class="lbl">Answer this, then spin</div><div class="q">#${pq.n} ${tagged(pq.t)}</div></div>` : "";
+    const kw = wheels.curse, curseSpinning = Date.now() < kw.until;
+    $("#spinCurse").disabled = readOnly || ph === "found" || curseSpinning;
+    $("#spinCurse").textContent = s.pending ? "Spin curse wheel" : "Extra spin (Reroll)";
+    $("#curseNote").textContent = s.pending ? "The seeker asked a question. Answer it, then spin." : "Spin after every question. Use the extra spin only for Reroll.";
+    if (s.curse && !curseSpinning) {
+      const it = CURSE[s.curse.i];
+      const kind = it.k === "time" ? "Time bonus" : it.k === "power" ? "Powerup (goes in hand)" : "Curse on the seeker";
+      const text = it.k === "time" ? `+${mmss(it.s)} for the hider` : tagged(it.t);
+      const extra = it.k === "curse" ? (typeof it.dur === "number" ? `${esc(it.d)} Lasts ${mmss(it.dur)}.` : it.dur === "round" ? `${esc(it.d)}` : `${esc(it.d)} Do it before the next question.`) : it.k === "power" ? esc(it.d) : "Added to the score.";
+      $("#curseCard").innerHTML = `<div class="card c-${it.k}"><div class="kind k-${it.k}">${kind}</div><div class="text">${text}</div><div class="desc">${extra}</div></div>`;
+    } else $("#curseCard").innerHTML = curseSpinning ? `<div class="card"><div class="kind">Spinning…</div></div>` : "";
+
+    $("#hand").innerHTML = s.hand.length ? s.hand.map(p => `<div class="item power"><span class="nm">${esc(p.t)}</span><button class="btn sm dia" data-use="${p.id}" ${readOnly ? "disabled" : ""}>Play</button><span class="ds">${esc(p.d)}</span></div>`).join("")
+      : `<p class="empty">No powerups yet. They come from the curse wheel.</p>`;
+    renderActive();
+  }
+
+  // Log + history
+  $("#log").innerHTML = s.log.length ? s.log.map(l => `<li><time>${hhmm(l.t)}</time><span>${esc(l.m)}</span></li>`).join("") : `<li class="empty">Nothing yet.</li>`;
+  $("#hist").innerHTML = s.history.length ? s.history.map(h => `<tr><td>${h.round}</td><td>${nm(h.hider)}</td><td class="num">${mmss(h.bonus)}</td><td class="num">${mmss(h.score)}</td></tr>`).join("") : `<tr><td colspan="4" class="empty">No rounds finished.</td></tr>`;
+  const best = [0, 1].map(i => s.history.filter(h => h.hider === i).reduce((m, h) => Math.max(m, h.score), 0));
+  $("#leader").textContent = s.history.length ? `Best hide: ${s.names[0]} ${mmss(best[0])} · ${s.names[1]} ${mmss(best[1])}` : "Longest hide (seeking time plus bonuses) wins.";
+  $("#nextRow").hidden = ph !== "found"; $("#nextBtn").disabled = readOnly;
+  document.querySelectorAll("[data-fix]").forEach(b => b.disabled = readOnly || ph === "setup");
+  $("#resetBtn").disabled = readOnly;
+  tick();
+}
+
+function renderActive(){
+  const s = state, now = Date.now();
+  $("#active").innerHTML = s.active.length ? s.active.map(a => {
+    const left = a.endsAt ? (a.endsAt - now) / 1000 : null, over = left !== null && left <= 0;
+    const tm = a.mode === "timed" ? (over ? "Over" : mmss(left)) : a.mode === "round" ? "Whole round" : "Task";
+    return `<div class="item ${a.kind} ${over ? "done" : ""}"><span class="nm">${tagged(a.t)}</span><span class="tm" data-ends="${a.endsAt || ""}">${tm}</span><span class="ds">${esc(a.d)}</span><button class="btn sm" data-clear="${a.id}" ${readOnly ? "disabled" : ""}>${a.mode === "task" ? "Done" : "Clear"}</button></div>`;
+  }).join("") : `<p class="empty">No curses or effects running.</p>`;
+}
+
+function tick(){
+  const s = state, ph = phaseNow(s), now = Date.now();
+  const big = $("#clockBig"), sub = $("#clockSub");
+  if (ph === "setup") { big.textContent = s.hideMin ? mmss(s.hideMin * 60) : "--:--"; sub.textContent = s.hideMin ? "Hiding time" : "Set up a round"; }
+  else if (ph === "hiding") { big.textContent = mmss((seekAt(s) - now) / 1000); sub.innerHTML = "Hiding time left"; }
+  else if (ph === "seeking") { const seek = (now - seekAt(s)) / 1000; big.textContent = mmss(seek + s.bonus); sub.innerHTML = `${mmss(seek)} seeking<br>+${mmss(s.bonus)} bonus`; }
+  else { const h = s.history[s.history.length - 1]; big.textContent = h ? mmss(h.score) : "--:--"; sub.innerHTML = h ? `Final score<br>+${mmss(h.bonus)} bonus` : "Found"; }
+  document.querySelectorAll("#active .tm[data-ends]").forEach(el => { const e = +el.dataset.ends; if (!e) return; const left = (e - now) / 1000; el.textContent = left > 0 ? mmss(left) : "Over"; el.closest(".item").classList.toggle("done", left <= 0); });
+}
+let lastPhase = null;
+setInterval(() => { const ph = phaseNow(state); if (ph !== lastPhase) { lastPhase = ph; render(); } else tick(); }, 250);
+
+// ---------- Events ----------
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id === "flipBtn") A.flip();
+  else if (t.id === "rollBtn") A.roll();
+  else if (t.id === "startBtn") A.start();
+  else if (t.id === "spinChal") A.spinChal();
+  else if (t.id === "spinCurse") A.spinCurse();
+  else if (t.id === "askBtn") A.ask();
+  else if (t.id === "foundBtn") A.found();
+  else if (t.id === "nextBtn") A.next();
+  else if (t.id === "resetBtn") {
+    if (t.dataset.armed) { delete t.dataset.armed; t.textContent = "Reset whole game"; A.reset(); }
+    else { t.dataset.armed = "1"; t.textContent = "Tap again to erase everything"; setTimeout(() => { if (t.dataset.armed) { delete t.dataset.armed; t.textContent = "Reset whole game"; } }, 4000); }
+  }
+  else if (t.dataset.act) A[t.dataset.act]();
+  else if (t.dataset.cat) { ui.cat = t.dataset.cat; render(); }
+  else if (t.dataset.q) { ui.sel = ui.sel === t.dataset.q ? null : t.dataset.q; render(); }
+  else if (t.dataset.use) A.usePower(t.dataset.use);
+  else if (t.dataset.clear) A.clearActive(t.dataset.clear);
+  else if (t.dataset.fix) A.fix(t.dataset.fix);
+});
+$("#qsearch").addEventListener("input", e => { ui.q = e.target.value; const keep = $("#qlist").scrollTop; render(); $("#qlist").scrollTop = keep; });
+for (const i of [0, 1]) $("#name" + i).addEventListener("change", e => A.name(i, e.target.value));
+
+// ---------- Boot ----------
+function drawAll(){ drawWheel($("#chalWheel"), CHAL); drawWheel($("#curseWheel"), CURSE); }
+drawAll();
+document.fonts && document.fonts.ready.then(drawAll);
+syncWheels(); firstSnap = false; render();
+
+$("#roomCode").textContent = ROOM;
+$("#copyLink").addEventListener("click", async () => {
+  const link = location.origin + location.pathname + "#" + ROOM, btn = $("#copyLink");
+  try { await navigator.clipboard.writeText(link); btn.textContent = "Copied!"; }
+  catch (e) {
+    let box = $("#linkbox");
+    if (!box) { box = document.createElement("input"); box.id = "linkbox"; box.className = "linkbox"; box.readOnly = true; $("#banner").after(box); }
+    box.value = link; box.focus(); box.select(); btn.textContent = "Copy the link below";
+  }
+  setTimeout(() => { btn.textContent = "Copy invite link"; }, 2500);
+});
+
+function connect(){
+  const es = new EventSource("/api/events?room=" + ROOM);
+  let first = true;
+  es.onmessage = (ev) => {
+    let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    setLive(true);
+    if (msg.state === null) {
+      // Server is empty (new room, or it restarted). Upload what this device has.
+      if (first && state.log && state.log.length) push();
+      first = false; firstSnap = false; return;
+    }
+    // The first message on each (re)connection is the server's truth, even if its counter restarted.
+    if (first) { first = false; lastV = msg.v - 1; }
+    if (msg.v <= lastV || pending > 0) { firstSnap = false; return; }
+    lastV = msg.v;
+    state = msg.state;
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+    syncWheels(); firstSnap = false; render();
+  };
+  es.onopen = () => { first = true; };
+  es.onerror = () => { setLive(false); $("#sync").textContent = "Reconnecting… (the server may be waking up)"; };
+}
+firstSnap = true;
+connect();
+})();
+</script>
+</body>
+</html>
