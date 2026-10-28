@@ -242,7 +242,7 @@ td.num { font-family: var(--display); font-variant-numeric: tabular-nums; }
       <div class="wheel-box">
         <div class="wheel"><canvas id="curseWheel" width="420" height="420" aria-label="Curse wheel"></canvas></div>
         <div class="wheel-side">
-          <div class="legend"><span style="--c:var(--gold)">Time 25</span><span style="--c:var(--diamond)">Powerup 25</span><span style="--c:var(--enchant)">Curse 50</span></div>
+          <div class="legend"><span style="--c:var(--gold)">Time 60</span><span style="--c:var(--diamond)">Powerup 60</span><span style="--c:var(--enchant)">Curse 170</span></div>
           <button class="btn gold" id="spinCurse">Spin curse wheel</button>
           <p class="note" id="curseNote"></p>
         </div>
@@ -299,7 +299,38 @@ const CH_NORMAL = [
 "[BOP] Collect 5 logs from a Biomes O' Plenty tree","[BOP] Picture of 2 different Biomes O' Plenty flowers",
 "[Camping] Craft a backpack","[Camping] Fill a backpack with 10 different items","[Camping] Set up a tent and take a selfie in it",
 "[Civ] Selfie with a Civilizations villager","[Hiker] Craft any Hiker's Friend item",
-"[Hiker] Set up a camp: campfire, bed, and chest within 5 blocks of each other","[Structures] Picture of any Better Structures structure"
+"[Hiker] Set up a camp: campfire, bed, and chest within 5 blocks of each other","[Structures] Picture of any Better Structures structure",
+// New normal
+"Craft a compass","Craft a clock","Craft 16 torches","Smelt any 3 raw ores","Collect 3 different colors of wool","Craft a painting and hang it",
+"Plant 5 saplings","Grow a tree with bone meal","Eat 3 different foods","Craft a fishing rod","Build a 10-block pillar and put a torch on top",
+"Build a cobblestone wall 10 blocks long","Swim 50 blocks","Sprint 300 blocks in a straight line","Put a flower in a flower pot",
+"Craft a chest and a barrel","Craft 3 different kinds of stairs or slabs","Collect a full stack of dirt","Collect 32 sand or gravel",
+"Kill 2 zombies","Kill a skeleton and pick up a bone","Craft bone meal","Collect 10 seeds","Dye a sheep (don't shear it) and take a selfie",
+"Picture of a cave entrance from outside","Light up a 5x5 area with torches","Place a crafting table and furnace inside a cave",
+"Mine 10 coal","Mine 5 raw copper","Build a Nether portal shaped frame out of any block","Build a 3x3 farm with water in the middle",
+"Build a 3-block dock out over water and park a boat at it","Stand on the highest block within 50 blocks and take a picture",
+"Picture of 3 different mob types in one shot","Collect 3 types of saplings","Pick 5 different flowers","Make mushroom stew",
+"Smelt sand into glass and place 5 glass blocks","Craft a ladder and climb 10 blocks with it","Craft a door and a trapdoor",
+"Make charcoal","Break 20 leaf blocks","Build a 20-block straight bridge across any gap","Write your name in blocks",
+"Build 4x4 pixel art of any mob face","Craft an armor stand and put something on it","Picture of a lava pool",
+"Visit 2 different biomes and take a picture in each","Stack 3 different blocks into a tower and stand on it",
+"Craft a stone sword and kill a mob with it","Build a mini tower with a window and a door","Collect 3 apples or sweet berries",
+"Make a hay bale or a block of any crop","Picture of yourself standing on a mountain edge","Build a 5-block-tall tree house platform",
+"Craft a fence and fence gate and make a pen","Dig a 3x3 hole 3 blocks deep and climb out","Collect 10 sticks and 10 cobblestone",
+"Find a cave pool or underground water and take a picture",
+"[C&F] Harvest 2 different Crops and Farms crops","[C&F] Selfie with 2 different Crops and Farms animals",
+"[C&F] Collect any product from a Crops and Farms animal","[C&F] Plant a row of 5 Crops and Farms crops","[C&F] Eat a Crops and Farms food",
+"[Naturalist] Picture of 2 different Naturalist animals in one shot","[Naturalist] Selfie with a baby Naturalist animal",
+"[Naturalist] Find a Naturalist insect and take a picture","[Naturalist] Picture of a Naturalist animal in or near water",
+"[Naturalist] Feed any Naturalist animal","[BOP] Collect 3 different Biomes O' Plenty plants",
+"[BOP] Selfie in a Biomes O' Plenty biome you haven't been to this game","[BOP] Build a 3x3 platform from Biomes O' Plenty planks",
+"[BOP] Picture of a Biomes O' Plenty tree from above","[BOP] Craft anything from Biomes O' Plenty wood",
+"[Camping] Set up a tent with a campfire next to it","[Camping] Lie down in a tent","[Camping] Put 5 items in a backpack and wear it",
+"[Civ] Picture of a Civilizations village from up high","[Civ] Selfie with 2 villagers from the same civilization",
+"[Civ] Picture of a Civilizations building","[Civ] Find a villager from a civilization you haven't seen this game",
+"[Hiker] Hike 200 blocks while holding a Hiker's Friend item","[Hiker] Picture of a Hiker's Friend campground",
+"[Structures] Selfie on the roof of any structure","[Structures] Picture looking out a window of any structure",
+"[Bosses] Picture of a Bosses Rise dungeon from outside"
 ];
 const CH_HARD = [
 "Craft an iron pickaxe","Bake a cake","Build a small house that fits your biome (door, bed, window)","Kill a zombie, skeleton, and creeper",
@@ -309,10 +340,22 @@ const CH_HARD = [
 "[Naturalist] Catch any animal in a pet cage","[C&F] Cook a Crops and Farms recipe with 3+ ingredients",
 "[BOP] Travel to a different Biomes O' Plenty biome than where you started and place a sign there",
 "[Structures] Loot a chest from a Better Structures structure","[Bosses] Find a Bosses Rise dungeon and take a picture at the entrance",
-"[Camping] Set up the portable backpack base and place 3 pieces of furniture in it"
+"[Camping] Set up the portable backpack base and place 3 pieces of furniture in it",
+// New hard
+"Craft a bucket and fill it with milk","Craft a full set of iron tools","Craft an iron helmet and iron boots","Mine an amethyst shard from a geode",
+"Craft a spyglass","Mine 3 raw gold","Craft a minecart","Breed 2 different kinds of animals","Build a 2-story house with stairs inside",
+"Build a 5x5 farm with water and crops planted in every spot","Craft a bow and kill a mob with it","Craft a bow and 10 arrows",
+"Collect a full stack of one log type","Build a 15-block lighthouse next to water with a light on top",
+"Fill a chest with 9 different blocks","Loot a chest from any vanilla structure (ruined portal, shipwreck, temple, etc.)",
+"Cook 5 different foods","Complete a trade with any vanilla villager","Ride a horse 300 blocks","Build up to Y=200 or higher and take a picture",
+"Kill 5 hostile mobs","Sail a boat 300 blocks","Dig a straight 50-block tunnel at Y=11","Smelt 10 raw iron",
+"[C&F] Cook 2 different Crops and Farms recipes","[C&F] Breed 2 Crops and Farms animals","[C&F] Grow 3 different Crops and Farms crops in one farm",
+"[Naturalist] Selfie with 5 different Naturalist animals","[BOP] Selfie in 3 different Biomes O' Plenty biomes",
+"[BOP] Build a cabin from Biomes O' Plenty wood","[Civ] Trade with villagers from 2 different civilizations",
+"[Camping] Set up a full camp: tent, campfire, and 3 pieces of camp furniture","[Structures] Picture 3 different modded structures"
 ];
 
-const TIMES = [[30,5],[60,6],[120,5],[180,4],[240,2],[300,3]];
+const TIMES = [[30,12],[60,14],[120,12],[180,10],[240,6],[300,6]];
 // name, description, seconds the effect lasts (null = no timer)
 const POWERS = [
 ["Veto","Refuse to answer one question. The seeker still uses it up.",null],
@@ -339,7 +382,43 @@ const POWERS = [
 ["Rewind","The seeker's last completed challenge doesn't count (remove its credit).",null],
 ["Hard Lock","The seeker's next hard question needs 2 hard challenges.",null],
 ["Time Bank","Your next time bonus is doubled.",null],
-["Question Lock","Pick one question the seeker can't ask this round.",null]
+["Question Lock","Pick one question the seeker can't ask this round.",null],
+// New
+["Mirage","Your next photo answer can be any picture from somewhere you've been this round.",null],
+["Fuzzy Radar","Answer the next radar question as if it asked the next bigger distance on the list.",null],
+["Insurance","If you're found in the next 5 minutes, you get +5 minutes.",300],
+["Smoke Bomb","Play when the seeker is close. They look straight down for 15 seconds.",15],
+["Lunch Break","You don't have to answer questions for 2 minutes. Questions wait until it ends.",120],
+["Credit Drain","Seeker loses 1 normal question credit (use House fixes).",null],
+["Hard Drain","Seeker loses 1 hard question credit (use House fixes).",null],
+["Hard Mode","The seeker's next challenge must be hard. They respin until they land on one.",null],
+["Double Trouble","Seeker has to finish their next 2 challenges to earn 1 credit.",null],
+["Swap","Make the seeker throw out their current challenge and spin a new one.",null],
+["Detour","Seeker walks 100 blocks in a direction you choose.",null],
+["Cursed Gift","Pick any curse from the list and put it on the seeker.",null],
+["Extend","Make a curse that's running on the seeker last 2 more minutes.",null],
+["Wild Card","Copy any powerup you already played this round.",null],
+["Peek","Ask the seeker one question from the list. They have to answer honestly.",null],
+["Tracker","Seeker tells you what biome they're in.",null],
+["Distance Check","Seeker tells you how far from spawn they are, rounded to the nearest 100.",null],
+["Burrow","Dig down up to 10 blocks from your spot, now.",null],
+["Climb","Move up or down up to 20 blocks, now.",null],
+["Compass Bluff","Lie on one north/south or east/west question. Reveal it when the round ends.",null],
+["Blur","Take your next photo answer with render distance at minimum.",null],
+["Sky Shot","Your next photo answer only has to show the sky.",null],
+["Night Shot","Take your next photo answer with brightness at 0.",null],
+["Slow Reply","You can wait up to 2 minutes before answering the next question.",120],
+["Mega Move","Move up to 500 blocks while the seeker freezes for 3 minutes.",180],
+["Jackpot","Your next time bonus spin pays triple.",null],
+["Quiet Zone","Seeker can't ask radar questions for 3 minutes.",180],
+["Photo Ban","Seeker can't ask photo questions for 5 minutes.",300],
+["Category Lock","Seeker's next question has to come from a category you pick.",null],
+["Strike","Seeker can't spin the challenge wheel for 2 minutes.",120],
+["Sabotage","The seeker's current challenge is doubled (2 fish becomes 4 fish).",null],
+["Question Tax","The seeker's next question costs 2 credits (use House fixes).",null],
+["Fog of War","Seeker sets render distance to minimum for 5 minutes.",300],
+["Hide Swap","Pick a new hiding spot within 100 blocks. Seeker closes their eyes for 30 seconds.",30],
+["Echo","Answer the seeker's next question with the exact answer you gave last time.",null]
 ];
 // name, description, seconds (number) | "task" | "round"
 const CURSES = [
@@ -392,7 +471,135 @@ const CURSES = [
 ["Curse of the Picky Eater","Only eat food you cooked yourself for the rest of the round.","round"],
 ["[C&F] Curse of the Harvest","Eat any Crops and Farms food.","task"],
 ["[Naturalist] Curse of the Wildlife Photographer","Pictures of 3 different Naturalist animals.","task"],
-["[BOP] Curse of the Florist","Pick 3 different Biomes O' Plenty flowers.","task"]
+["[BOP] Curse of the Florist","Pick 3 different Biomes O' Plenty flowers.","task"],
+// New: movement
+["Curse of the Turtle","Crouch for 5 seconds after every 20 blocks you travel.",120],
+["Curse of the Straight Line","Only move in one direction (north, south, east, or west).",60],
+["Curse of the Zigzag","Change direction every 10 blocks.",120],
+["Curse of the Mole","Dig down 10 blocks, then dig back up.","task"],
+["Curse of the Bridge Troll","You can only cross water by building a bridge.",240],
+["Curse of the Floor is Grass","Don't step on grass blocks.",60],
+["Curse of the Compass Lock","Keep your camera facing north. You can still walk any direction.",60],
+["Curse of the Stop Sign","Stop for 3 seconds every 30 seconds.",180],
+["Curse of Red Light Green Light","When the hider says \"red light,\" freeze until they say \"green light.\"",180],
+["Curse of the Wrong Way","Walk 30 blocks directly away from where you think the hider is.","task"],
+["Curse of the Return Trip","Go back to where you were when you asked your last question.","task"],
+["Curse of Homesick","Walk 100 blocks toward spawn.","task"],
+["Curse of the Sailor","If water is in sight, you have to travel by boat.",180],
+["Curse of the Mountain Goat","Climb up 20 blocks before you keep going.","task"],
+["Curse of the Sinkhole","Dig straight down 20 blocks (or to Y=40), then climb out.","task"],
+["Curse of Slow Motion","No sprinting and no jumping.",90],
+["Curse of the Tightrope","Build a 1-wide line 10 blocks long in the air and walk across it.","task"],
+["Curse of No Shortcuts","Can't dig through blocks to travel. Go around.",180],
+["Curse of the Leash","Stay within 50 blocks of where you got cursed.",120],
+["Curse of the Daredevil","Jump off a 5+ block drop. Land however you want.","task"],
+["Curse of the Nomad","You can't stand still for more than 3 seconds.",120],
+["Curse of the Couch Potato","Stand completely still.",30],
+["Curse of the Statue","Don't move at all, not even your camera.",45],
+["Curse of the Dry Land","Can't use boats.",240],
+["Curse of the Hermit","Can't enter villages.",240],
+["Curse of the Claustrophobe","Stay where you can see the sky. No caves or tunnels.",180],
+["Curse of Acrophobia","Stay below Y=80.",180],
+["Curse of the Deep Diver","Get below Y=50 and stay there.",120],
+["Curse of Breadcrumbs","Place a block every 20 blocks you travel.",180],
+["Curse of the Native","Can't leave the biome you're in.",180],
+// New: camera and settings
+["Curse of the Hidden HUD","Turn off your HUD (Settings > Video > Hide HUD, or F1).",120],
+["Curse of the Wide Eyes","Set FOV to maximum.",180],
+["Curse of the Over the Shoulder","Play in back third person.",180],
+["Curse of the Paper Map","Can't look at any map item.",300],
+["Curse of Amnesia","Can't look at the game page or question log.",180],
+// New: inventory and tools
+["Curse of the One Slot","Only use your first hotbar slot.",120],
+["Curse of the Hoarder","Pick up every item you see.",120],
+["Curse of the Donation","Drop 10 of any block you're carrying and leave them.","task"],
+["Curse of the Splinters","Only use wooden tools.",240],
+["Curse of the Stone Age","Only use stone tools or worse.",300],
+["Curse of Bare Feet","Take off your boots for the rest of the round.","round"],
+["Curse of the Torchbearer","Hold a torch in your hand the whole time you move.",120],
+["Curse of the Lamplighter","Place a torch every 10 blocks.",120],
+["Curse of the Tax Collector","Lose 1 normal question credit if you have one (use House fixes).","task"],
+["Curse of No Crafting","Can't craft anything.",180],
+["Curse of the Cold Furnace","Can't use a furnace, smoker, or campfire.",300],
+["Curse of the Coward","Can't attack anything.",120],
+["Curse of the Berserker","Attack every mob you see.",120],
+["Curse of the Gentle Giant","Can't break plants: grass, flowers, leaves, or crops.",180],
+// New: food
+["Curse of the Carnivore","Only eat meat for the rest of the round.","round"],
+["Curse of the Snack Attack","Eat 3 food items before you keep going.","task"],
+["Curse of the Sweet Tooth","Eat berries, a cookie, cake, pie, or honey.","task"],
+["Curse of the Raw Diet","Only eat raw food for the rest of the round.","round"],
+// New: gather and build tasks
+["Curse of the Miner","Mine 16 stone.","task"],
+["Curse of the Woodcutter","Collect 16 logs of any type.","task"],
+["Curse of the Gardener","Plant 5 flowers.","task"],
+["Curse of the Shepherd","Shear or dye a sheep.","task"],
+["Curse of the Painter","Craft 3 different dyes.","task"],
+["Curse of the Smith","Smelt any 3 items.","task"],
+["Curse of the Carpenter","Craft a door, a trapdoor, or 3 fences.","task"],
+["Curse of the Mason","Build a 3x3 stone floor.","task"],
+["Curse of the Sculptor","Build a 3-block-tall statue of anything.","task"],
+["Curse of the Graffiti Artist","Write the hider's name in blocks.","task"],
+["Curse of the Sign Post","Place a sign that says \"The seeker was here.\"","task"],
+["Curse of the Shrine","Build a little shrine with a torch and a flower.","task"],
+["Curse of the Gravedigger","Dig a 2x2 hole 3 blocks deep and climb out.","task"],
+["Curse of the Moat","Dig a moat around a 3x3 square.","task"],
+["Curse of the Gatekeeper","Craft a fence gate, place it, and walk through it.","task"],
+["Curse of the Climber","Craft and place 5 ladders.","task"],
+["Curse of the Mini Me","Build a 3-block-tall statue of yourself.","task"],
+["Curse of the Shopping List","Collect 1 each of dirt, sand, gravel, a log, and a flower.","task"],
+["Curse of the Rainbow","Collect 4 blocks of different colors.","task"],
+["Curse of the Bone Collector","Collect 3 bones.","task"],
+["Curse of the Spider Hunter","Collect 3 string.","task"],
+["Curse of the Chicken Run","Collect 3 feathers or eggs.","task"],
+["Curse of the Hunter","Kill 2 different kinds of passive animals.","task"],
+["Curse of the Guard","Kill 3 hostile mobs.","task"],
+["Curse of the Bait","Get a hostile mob to chase you 10 blocks.","task"],
+["Curse of the Photographer","Send the hider pictures of 3 different mobs.","task"],
+// New: info for the hider
+["Curse of the Selfie Stick","Send the hider a selfie every minute.",180],
+["Curse of the Narrator","Describe your surroundings out loud for 30 seconds.","task"],
+["Curse of the Livestream","Share your screen with the hider.",60],
+["Curse of the Postcard","Send the hider a picture facing the way you're headed.","task"],
+["Curse of the Weather Report","Tell the hider your weather and the time of day.","task"],
+["Curse of the Altimeter","Tell the hider your Y-level.","task"],
+["Curse of the Interview","The hider asks you one question from the list. Answer honestly.","task"],
+["Curse of the Confession","Tell the hider which direction you're heading.","task"],
+// New: silly
+["Curse of the Echo","Repeat everything the hider says.",120],
+["Curse of the Poet","Only talk in rhymes.",120],
+["Curse of the Pirate","Talk like a pirate.",180],
+["Curse of the Karaoke","Sing any song for 20 seconds.","task"],
+["Curse of the Compliment","Give the hider 3 real compliments.","task"],
+["Curse of the Pop Quiz","Answer a Minecraft trivia question from the hider. Wrong answer means wait 1 minute.","task"],
+["Curse of the Math Test","Solve 3 math problems from the hider.","task"],
+["Curse of the Tongue Twister","Say a tongue twister the hider picks 3 times fast.","task"],
+["Curse of the Alphabet","Name a Minecraft block for every letter A to J.","task"],
+["Curse of the Mobipedia","Name 15 mobs in 30 seconds. Fail and you wait 1 minute.","task"],
+["Curse of the Dance Party","Spam crouch for 15 seconds.","task"],
+["Curse of the Emote","Do an emote 5 times.","task"],
+// New: mods
+["[C&F] Curse of the Harvest Moon","Harvest 3 different Crops and Farms crops.","task"],
+["[C&F] Curse of the Rancher","Selfie with 2 different Crops and Farms animals.","task"],
+["[C&F] Curse of the Picnic","Eat 2 different Crops and Farms foods.","task"],
+["[C&F] Curse of the Baker","Cook bread or any Crops and Farms baked food.","task"],
+["[Naturalist] Curse of the Safari","Picture of a Naturalist predator.","task"],
+["[Naturalist] Curse of the Birdwatcher","Picture of any bird.","task"],
+["[Naturalist] Curse of the Butterfly Net","Pictures of 2 different Naturalist insects.","task"],
+["[Naturalist] Curse of the Prey","If you see a Naturalist predator, run from it. No fighting.",180],
+["[Naturalist] Curse of the Animal Whisperer","Feed any Naturalist animal.","task"],
+["[BOP] Curse of the Explorer","Stand in 2 different Biomes O' Plenty biomes.","task"],
+["[BOP] Curse of the Lumber Mill","Craft planks from 3 different Biomes O' Plenty woods.","task"],
+["[BOP] Curse of the Herbalist","Collect 5 Biomes O' Plenty plants.","task"],
+["[Camping] Curse of the Campfire Story","Place a campfire and stay within 3 blocks of it.",45],
+["[Camping] Curse of the Pitch","Set up a tent, then pack it back up.","task"],
+["[Civ] Curse of the Merchant","Complete any trade with a Civilizations villager.","task"],
+["[Civ] Curse of the Census","Count the villagers in the next village and tell the hider.","task"],
+["[Hiker] Curse of the Trail Marker","Place a sign every 50 blocks.",180],
+["[Hiker] Curse of the Summit","Climb to the highest point within 100 blocks.","task"],
+["[Structures] Curse of the Squatter","Stand inside any structure.",60],
+["[Structures] Curse of the Looter","Open any chest in a structure.","task"],
+["[Structures] Curse of the Critic","Take pictures of a structure from 3 sides.","task"]
 ];
 
 // Questions: [category, text]. Category "hard" marks hard questions.
@@ -552,7 +759,7 @@ function drawWheel(canvas, items){
   items.forEach((it, i) => {
     ctx.beginPath(); ctx.moveTo(c, c); ctx.arc(c, c, r, i * step, (i + 1) * step); ctx.closePath();
     ctx.fillStyle = cssVar(COL[it.k]); ctx.fill();
-    ctx.lineWidth = items.length > 70 ? 1.5 : 2.5; ctx.strokeStyle = cssVar("--panel"); ctx.stroke();
+    ctx.lineWidth = items.length > 200 ? 0.8 : items.length > 70 ? 1.2 : 2.5; ctx.strokeStyle = cssVar("--panel"); ctx.stroke();
   });
   ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.lineWidth = 6; ctx.strokeStyle = cssVar("--line"); ctx.stroke();
   ctx.fillStyle = cssVar("--panel"); ctx.fillRect(c - 34, c - 34, 68, 68);
